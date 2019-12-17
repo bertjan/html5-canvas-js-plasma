@@ -41,8 +41,8 @@
 
         var t = 0.0;
 
-        function update(ctx) {
-            var speed = 0.1;
+        function updateLoop(ctx) {
+            var speed = 0.07;
             t = (t + speed);
 
             for(var x = 0; x < ctx.canvas.width; x++) {
@@ -54,6 +54,8 @@
             }
 
             ctx.canvasContext.putImageData(ctx.canvasImageData, 0, 0);
+
+            window.requestAnimationFrame(function() { updateLoop(ctx); });
         }
 
 
@@ -75,7 +77,7 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             var context = initCanvas();
-            setInterval(function() { update(context) } , 1000 / 30); // 30 fps
+            updateLoop(context);
         });
 
     </script>
