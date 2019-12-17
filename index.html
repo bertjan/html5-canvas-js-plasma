@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Canvas plasma</title>
+
+    <script type="text/javascript">
+
+        function colorToRgb(color) {
+            return {
+                r: 255,
+                g: 255 * Math.cos(color * Math.PI),
+                b: 255 * Math.sin(color * Math.PI)
+            };
+        }
+
+        function setPixel(ctx, x, y, rgb) {
+            var index = (x + y * ctx.canvas.width) * 4;
+            var pixels = ctx.canvasImageData.data;
+            pixels[index] = rgb.r;
+            pixels[index + 1] = rgb.g;
+            pixels[index + 2] = rgb.b;
+            pixels[index + 3] = 255;
+        }
+
+        function calcPlasma(ctx, x, y, time) {
+            var size = ctx.canvas.width/20;
+            var result = 0;
+
+            result += Math.sin(x/size+time);
+            result += Math.sin((y/size+time)/2.0);
+            result += Math.sin((x/size+y/size+time)/2.0);
+
+            var cx=x/size/10+0.8*Math.sin(time/4);
+            var cy=y/size/10+0.8*Math.cos(time/3);
+            result+=Math.sin(Math.sqrt(100*(cx*cx+cy*cy+1))+time);
+
+            return result;
+        }
+
+
+        var t = 0.0;
+
+        function update(ctx) {
+            var speed = 0.1;
+            t = (t + speed);
+
+            for(var x = 0; x < ctx.canvas.width; x++) {
+                for(var y = 0; y < ctx.canvas.height; y++) {
+                    var color = calcPlasma(ctx, x, y, t);
+                    var rgb = colorToRgb(color);
+                    setPixel(ctx, x, y, rgb);
+                }
+            }
+
+            ctx.canvasContext.putImageData(ctx.canvasImageData, 0, 0);
+        }
+
+
+        function initCanvas() {
+            var canvas = document.getElementById('canvas');
+            canvas.width = 256;
+            canvas.height = 144;
+            var canvasContext = canvas.getContext('2d');
+            var canvasImageData = canvasContext.createImageData(canvas.width, canvas.height);
+
+            var context = {
+                canvas: canvas,
+                canvasContext: canvasContext,
+                canvasImageData: canvasImageData
+            };
+
+            return context;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var context = initCanvas();
+            setInterval(function() { update(context) } , 1000 / 30); // 30 fps
+        });
+
+    </script>
+</head>
+<body>
+
+<canvas id="canvas" style="zoom: 3; -moz-transform: scale(3);"></canvas>
+
+</body>
+</html>
